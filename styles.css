@@ -1,24 +1,28 @@
-body {
+/* Reset basic */
+* {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+body {
   font-family: 'Segoe UI', sans-serif;
   background: url('https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=800&q=80') no-repeat center center fixed;
   background-size: cover;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   height: 100vh;
-  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .container {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 2rem;
   width: 90%;
   max-width: 400px;
-  box-shadow: 0 0 20px rgba(0,0,0,0.4);
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
 }
 
 form {
@@ -32,9 +36,10 @@ input[type="password"] {
   padding: 0.8rem;
   border: none;
   border-radius: 30px;
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   color: #fff;
   font-size: 1rem;
+  width: 100%;
   outline: none;
 }
 
@@ -42,46 +47,16 @@ input[type="password"] {
   color: #eee;
 }
 
-.inline-inputs {
+.inline {
   display: flex;
   gap: 1rem;
 }
 
-.inline-inputs input {
+.inline input {
   flex: 1;
 }
 
-.music-player {
-  background: #000;
-  padding: 1rem;
-  border-radius: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.music-player .track-title {
-  color: #fff;
-  font-size: 0.95rem;
-  margin: 0 1rem;
-}
-
-.music-player .slider {
-  width: 150px;
-  accent-color: #a960ee;
-  opacity: 0.3;
-}
-
-.nav {
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 1.2rem;
-  cursor: pointer;
-}
-
-.submit {
+button.submit {
   padding: 0.9rem;
   border: none;
   border-radius: 30px;
@@ -93,6 +68,46 @@ input[type="password"] {
   transition: background 0.2s ease;
 }
 
-.submit:hover {
+button.submit:hover {
   background: linear-gradient(to right, #8e44ad, #5c3dd8);
+}
+
+/* Music Player */
+.music-player {
+  background: #000;
+  padding: 1rem;
+  border-radius: 20px;
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.track-title {
+  color: white;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.slider {
+  width: 100%;
+  accent-color: #a960ee;
+  opacity: 0.4;
+}
+
+.nav {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.log {
+  color: #fff;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  text-align: center;
+  min-height: 1em;
 }
