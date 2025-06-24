@@ -1,57 +1,56 @@
-window.onload = () => {
-  const patInput = document.getElementById("pat");
-  const savedPAT = localStorage.getItem("pat");
-  if (savedPAT) patInput.value = savedPAT;
-};
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.querySelector("form");
+  const log = document.querySelector(".log");
 
-async function kirim() {
-  const pin = document.getElementById("pin").value.trim();
-  const link = document.getElementById("link").value.trim();
-  const filename = document.getElementById("filename").value.trim();
-  const ext = document.getElementById("ext").value.trim();
-  const pat = document.getElementById("pat").value.trim();
-  const status = document.getElementById("status");
-
-  if (!pin || !link || !pat) {
-    status.className = "error";
-    status.innerText = "⚠️ PIN, Link, dan PAT wajib diisi.";
-    return;
+  // Auto-fill PAT kalau ada di localStorage
+  const savedPAT = localStorage.getItem("github_pat");
+  if (savedPAT) {
+    document.querySelector('input[name="pat"]').value = savedPAT;
+    log.textContent = "🔐 PAT loaded from browser";
   }
 
-  localStorage.setItem("pat", pat);
-  status.className = "";
-  status.innerText = "⏳ Mengirim...";
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-  try {
-    const res = await fetch("https://api.github.com/repos/zanix-ai/GT-Downloader/actions/workflows/main.yml/dispatches", {
+    const url = form.url.value.trim();
+    const pat = form.pat.value.trim();
+    const filename = form.filename.value.trim();
+    const fileext = form.fileext.value.trim();
+    const pin = form.pin.value.trim();
+
+    if (!url || !pat || !pin) {
+      log.textContent = "❌ URL, PAT, dan PIN wajib diisi!";
+      return;
+    }
+
+    // Simpan PAT ke localStorage
+    localStorage.setItem("github_pat", pat);
+
+    log.textContent = "⏳ Mengirim ke GitHub Actions...";
+
+    const res = await fetch("https://api.github.com/repos/zanix-ai/GT-Downloader/actions/workflows/kirim.yml/dispatches", {
       method: "POST",
       headers: {
-        "Authorization": "Bearer " + pat,
+        "Authorization": `Bearer ${pat}`,
         "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28"
       },
       body: JSON.stringify({
         ref: "main",
         inputs: {
-          pin: pin,
-          url: link,
-          name: filename,
-          ext: ext
+          url,
+          pin,
+          filename,
+          fileext
         }
       })
     });
 
-    const text = await res.text();
-
     if (res.ok) {
-      status.className = "success";
-      status.innerText = "✅ Berhasil dikirim ke Telegram!";
+      log.textContent = "✅ Terkirim ke GitHub Actions. Cek log-nya ya!";
     } else {
-      status.className = "error";
-      status.innerText = `❌ Gagal (${res.status}):\n${text}`;
+      const msg = await res.json().catch(() => ({}));
+      log.textContent = `❌ Gagal (${res.status}): ${msg.message || "Unknown error"}`;
     }
-  } catch (err) {
-    status.className = "error";
-    status.innerText = `❌ Error: ${err.message}`;
-  }
-}
+  });
+});
