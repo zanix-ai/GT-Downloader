@@ -52,14 +52,14 @@ jobs:
 
       - name: Upload semua file zq.* ke Telegram
         env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TELEGRAM_TOKEN: ${{ TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ TELEGRAM_USER_ID }}
         run: |
           for file in zq.*; do
             if [ -f "$file" ] && [ -s "$file" ]; then
               echo "📤 Mengirim $file ke Telegram..."
-              curl -F chat_id="$TELEGRAM_CHAT_ID" \
+              curl -F chat_id="$TELEGRAM_USER_ID" \
                    -F document=@"$file" \
-                   "https://api.telegram.org/bot$TELEGRAM_TOKEN/sendDocument"
+                   "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendDocument"
             fi
           done
