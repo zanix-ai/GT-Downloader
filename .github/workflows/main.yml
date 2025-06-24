@@ -12,8 +12,8 @@ on:
         required: true
         type: string
       ext:
-        description: 'Ekstensi file (.mp4, .zip, dll)'
-        required: false
+        description: 'Ekstensi file (.mp4, .jpg, .zip, dll)'
+        required: true
         type: string
 
 jobs:
@@ -29,15 +29,13 @@ jobs:
             exit 1
           fi
 
-      - name: Download file (curl with wget fallback)
+      - name: Download file sebagai zq.{ext}
         run: |
           URL="${{ github.event.inputs.url }}"
           EXT="${{ github.event.inputs.ext }}"
-          FILENAME="downloaded_file"
-          [ -n "$EXT" ] && FILENAME="${FILENAME}${EXT}"
+          FILENAME="zq.${EXT##*.}"
 
-          echo "📥 Downloading from: $URL"
-          echo "📦 Saving as: $FILENAME"
+          echo "📥 Downloading $URL as $FILENAME"
 
           curl -L "$URL" --output "$FILENAME" || {
             echo "⚠️ curl failed, trying wget..."
@@ -52,22 +50,16 @@ jobs:
             exit 1
           fi
 
-      - name: Cek hasil download
-        run: |
-          ls -lah
-          file "$FILENAME"
-
-      - name: Kirim ke Telegram
+      - name: Upload semua file zq.* ke Telegram
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          if [ ! -f "$FILENAME" ] || [ ! -s "$FILENAME" ]; then
-            echo "❌ File $FILENAME tidak ditemukan atau kosong."
-            exit 1
-          fi
-
-          echo "🚀 Mengirim $FILENAME ke Telegram..."
-          curl -F chat_id="$TELEGRAM_CHAT_ID" \
-               -F document=@"$FILENAME" \
-               "https://api.telegram.org/bot$TELEGRAM_TOKEN/sendDocument"
+          for file in zq.*; do
+            if [ -f "$file" ] && [ -s "$file" ]; then
+              echo "📤 Mengirim $file ke Telegram..."
+              curl -F chat_id="$TELEGRAM_CHAT_ID" \
+                   -F document=@"$file" \
+                   "https://api.telegram.org/bot$TELEGRAM_TOKEN/sendDocument"
+            fi
+          done
