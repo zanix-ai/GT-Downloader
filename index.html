@@ -1,35 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>GT Downloader</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
-    <h2>GT Downloader 🎧</h2>
-
-    <input type="password" id="pin" placeholder="Masukkan PIN">
-    <input type="text" id="link" placeholder="Link file (https://...)">
-    <input type="text" id="filename" placeholder="Nama file custom (tanpa ekstensi)">
-    <input type="text" id="ext" placeholder="Ekstensi (contoh: .mp4, .zip)">
-    <input type="text" id="pat" placeholder="GitHub PAT">
-
-    <button onclick="kirim()">Kirim ke Telegram</button>
-    <p id="status"></p>
-
-    <div class="music-panel">
-      <div id="music-controls">
-        <button onclick="prevBGM()">⏮️ Prev</button>
-        <button onclick="nextBGM()">⏭️ Next</button>
+    <form>
+      <input type="text" placeholder="URL" name="url">
+      <input type="text" placeholder="PAT" name="pat">
+      <div class="inline-inputs">
+        <input type="text" placeholder="FILE NAME" name="filename">
+        <input type="text" placeholder="FILE EXT" name="fileext">
       </div>
-    </div>
+      <input type="password" placeholder="INPUT PIN" name="pin">
+
+      <div class="music-player">
+        <!-- YouTube iframe player -->
+        <iframe id="ytplayer" style="display:none;" width="0" height="0" frameborder="0" allow="autoplay"></iframe>
+
+        <div>
+          <button type="button" id="prev" class="nav">⏮️</button>
+          <span class="track-title">Track Title</span>
+          <button type="button" id="next" class="nav">⏭️</button>
+        </div>
+
+        <input type="range" class="slider" disabled />
+      </div>
+
+      <div class="log" style="color:white;font-size:0.9rem;text-align:center"></div>
+      <button type="submit" class="submit">Submit</button>
+    </form>
   </div>
 
-  <!-- BGM Player -->
-  <iframe id="bgmPlayer" style="display:none;width:0;height:0;" allow="autoplay" frameborder="0"></iframe>
-
-  <script src="bgm.js"></script>
   <script src="logic.js"></script>
+  <script src="bgm.js"></script>
 </body>
 </html>
