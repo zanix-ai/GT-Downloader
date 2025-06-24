@@ -8,15 +8,24 @@ on:
         required: true
         type: string
       url:
-        description: 'URL file yang mau dikirim'
+        description: 'URL file yang mau didownload'
         required: true
+        type: string
+      name:
+        description: 'Nama file custom (tanpa ekstensi)'
+        required: false
+        type: string
+      ext:
+        description: 'Ekstensi file (.mp4, .zip, dll)'
+        required: false
         type: string
 
 jobs:
-  sendFile:
+  kirim:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Validasi PIN via SHA-256 hash
+      - name: Cek PIN
         run: |
           echo -n "${{ github.event.inputs.pin }}" | sha256sum | grep -q "427a13912500729a67188e4bf5742fc07122e9919e17b3adca8cc1e2ccd5b898"
           if [ $? -ne 0 ]; then
@@ -24,15 +33,23 @@ jobs:
             exit 1
           fi
 
-      - name: Download file dari URL
+      - name: Download file
         run: |
-          curl -L "${{ github.event.inputs.url }}" -o downloaded_file
+          URL="${{ github.event.inputs.url }}"
+          NAME="${{ github.event.inputs.name }}"
+          EXT="${{ github.event.inputs.ext }}"
 
-      - name: Kirim file ke Saved Messages Telegram
+          FILENAME="downloaded_file"
+          [ -n "$NAME" ] && FILENAME="$NAME"
+          [ -n "$EXT" ] && FILENAME="$FILENAME$EXT"
+
+          curl -L "$URL" --output "$FILENAME"
+
+      - name: Kirim ke Telegram
         env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_USER_ID: ${{ secrets.TELEGRAM_USER_ID }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          curl -F "chat_id=${TELEGRAM_USER_ID}" \
-               -F "document=@downloaded_file" \
-               "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument"
+          curl -F chat_id="$TELEGRAM_CHAT_ID" \
+               -F document=@"$FILENAME" \
+               "https://api.telegram.org/bot$TELEGRAM_TOKEN/sendDocument"
