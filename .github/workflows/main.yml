@@ -62,6 +62,11 @@ jobs:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
+          if [ ! -f "$FILENAME" ] || [ ! -s "$FILENAME" ]; then
+            echo "❌ File $FILENAME tidak ditemukan atau kosong."
+            exit 1
+          fi
+
           echo "🚀 Mengirim $FILENAME ke Telegram..."
           curl -F chat_id="$TELEGRAM_CHAT_ID" \
                -F document=@"$FILENAME" \
