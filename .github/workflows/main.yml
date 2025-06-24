@@ -1,0 +1,38 @@
+name: Kirim ke Telegram
+
+on:
+  workflow_dispatch:
+    inputs:
+      pin:
+        description: 'PIN rahasia'
+        required: true
+        type: string
+      url:
+        description: 'URL file yang mau dikirim'
+        required: true
+        type: string
+
+jobs:
+  sendFile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validasi PIN via SHA-256 hash
+        run: |
+          echo -n "${{ github.event.inputs.pin }}" | sha256sum | grep -q "d6fcefa5a7d7e54238b1798390a474cb33cf94b3030e616f8b6dc77ab1dc4a4c"
+          if [ $? -ne 0 ]; then
+            echo "❌ PIN salah!"
+            exit 1
+          fi
+
+      - name: Download file dari URL
+        run: |
+          curl -L "${{ github.event.inputs.url }}" -o downloaded_file
+
+      - name: Kirim file ke Saved Messages Telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_USER_ID: ${{ secrets.TELEGRAM_USER_ID }}
+        run: |
+          curl -F "chat_id=${TELEGRAM_USER_ID}" \
+               -F "document=@downloaded_file" \
+               "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument"
