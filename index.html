@@ -1,120 +1,84 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <title>GT Downloader</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: url('https://images.unsplash.com/photo-1503264116251-35a269479413?auto=format&fit=crop&w=800&q=80') no-repeat center center fixed;
-      background-size: cover;
-      height: 100vh;
+      background-color: #111;
+      color: #eee;
+      font-family: sans-serif;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
     }
     .container {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
+      background-color: #222;
       padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 0 30px rgba(255,255,255,0.05);
       width: 90%;
-      max-width: 400px;
-      box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+      max-width: 480px;
+      text-align: center;
     }
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    input[type="text"], input[type="password"] {
-      padding: 0.8rem;
-      border: none;
-      border-radius: 30px;
-      background: rgba(255, 255, 255, 0.2);
-      color: #fff;
-      font-size: 1rem;
+    input, button {
       width: 100%;
-      outline: none;
-    }
-    ::placeholder { color: #eee; }
-    .inline { display: flex; gap: 1rem; }
-    .inline input { flex: 1; }
-    button.submit {
-      padding: 0.9rem;
+      padding: 0.8rem;
+      margin: 0.6rem 0;
+      font-size: 1.1rem;
       border: none;
-      border-radius: 30px;
-      background: linear-gradient(to right, #a960ee, #6c5ce7);
+      border-radius: 8px;
+    }
+    input {
+      background: #333;
+      color: #eee;
+    }
+    button {
+      background-color: #06f;
       color: white;
-      font-weight: bold;
-      font-size: 1rem;
       cursor: pointer;
       transition: background 0.2s ease;
     }
-    button.submit:hover {
-      background: linear-gradient(to right, #8e44ad, #5c3dd8);
-    }
-    .log {
-      color: #fff;
-      margin-top: 1rem;
-      font-size: 0.9rem;
-      text-align: center;
-      min-height: 1em;
+    button:hover {
+      background-color: #0055cc;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <form id="mainForm">
-      <input type="text" id="url" placeholder="URL">
-      <input type="text" id="pat" placeholder="PAT">
-      <div class="inline">
-        <input type="text" id="filename" placeholder="FILE NAME">
-        <input type="text" id="ext" placeholder="FILE EXT">
-      </div>
-      <input type="password" id="pin" placeholder="INPUT PIN">
-      <button type="submit" class="submit">Submit</button>
-    </form>
-    <div class="log" id="log"></div>
+    <h2>GT Downloader 🔒</h2>
+    <input type="password" id="pin" placeholder="Masukkan PIN">
+    <input type="text" id="link" placeholder="Link file (https://...)">
+    <input type="text" id="ext" placeholder="Ekstensi file (cth: .mp4)">
+    <input type="text" id="pat" placeholder="GitHub PAT">
+    <button onclick="kirim()">Kirim ke Telegram</button>
   </div>
 
   <script>
-    const form = document.getElementById('mainForm');
-    const log = document.getElementById('log');
-    const patInput = document.getElementById("pat");
-
-    window.addEventListener("DOMContentLoaded", () => {
-      const savedPAT = localStorage.getItem("github_pat");
+    // Autofill PAT kalau sebelumnya pernah di-save
+    window.onload = () => {
+      const savedPAT = localStorage.getItem("pat");
       if (savedPAT) {
-        patInput.value = savedPAT;
-        log.innerText = "🔐 PAT loaded from browser";
+        document.getElementById("pat").value = savedPAT;
       }
-    });
+    };
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const pat = patInput.value;
-      const url = document.getElementById("url").value;
+    async function kirim() {
       const pin = document.getElementById("pin").value;
-      const filename = document.getElementById("filename").value;
+      const link = document.getElementById("link").value;
       const ext = document.getElementById("ext").value;
+      const pat = document.getElementById("pat").value;
 
-      if (!pat || !url || !pin) {
-        log.innerText = "❌ Semua field wajib diisi!";
+      if (!pat || !link || !pin) {
+        alert("⚠️ Semua kolom wajib diisi kecuali ekstensi.");
         return;
       }
 
-      localStorage.setItem("github_pat", pat);
-      log.innerText = "⏳ Mengirim...";
+      localStorage.setItem("pat", pat); // Simpan PAT
 
-      const res = await fetch("https://api.github.com/repos/zanix-ai/GT-Downloader/actions/workflows/main.yml/dispatches", {
+      const res = await fetch("https://api.github.com/repos/zanix-ai/GT-Downloader/actions/workflows/kirim.yml/dispatches", {
         method: "POST",
         headers: {
           "Authorization": "Bearer " + pat,
@@ -125,20 +89,19 @@
           ref: "main",
           inputs: {
             pin: pin,
-            url: url,
-            name: filename,
+            url: link,
             ext: ext
           }
         })
       });
 
       if (res.ok) {
-        log.innerText = "✅ Berhasil dikirim ke Telegram!";
+        alert("✅ Berhasil dikirim ke Telegram!");
       } else {
-        const data = await res.json();
-        log.innerText = `❌ Gagal (${res.status}): ${data.message}`;
+        const err = await res.json().catch(() => ({}));
+        alert(`❌ Gagal (${res.status}):\n${err.message || "Unknown error"}`);
       }
-    });
+    }
   </script>
 </body>
 </html>
