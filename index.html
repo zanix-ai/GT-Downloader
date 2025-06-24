@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>GT Downloader</title>
@@ -106,22 +105,18 @@
       </div>
       <input type="password" id="pin" placeholder="INPUT PIN">
       <button type="submit" class="submit">Submit</button>
-    </form>
-
-    <div class="music-player">
-      <div>
-        <button class="nav" onclick="prevTrack()">⏮️</button>
-        <span class="track-title" id="trackTitle">Track Title</span>
-        <button class="nav" onclick="nextTrack()">⏭️</button>
-      </div>
-      <input type="range" id="seek" value="0" class="slider">
-    </div>
-
-    <div class="log" id="log"></div>
+    </form><div class="music-player">
+  <div>
+    <button class="nav" onclick="prevTrack()">⏮️</button>
+    <span class="track-title" id="trackTitle">Track Title</span>
+    <button class="nav" onclick="nextTrack()">⏭️</button>
   </div>
+  <input type="range" id="seek" value="0" class="slider">
+</div>
 
-  <script src="bgm.js"></script>
-  <script>
+<div class="log" id="log"></div>
+
+  </div>  <script src="bgm.js"></script>  <script>
     const form = document.getElementById('mainForm');
     const log = document.getElementById('log');
     const patInput = document.getElementById("pat");
@@ -202,8 +197,12 @@
     }
 
     function updateTitle() {
-      const url = new URL(bgmList[currentTrack]);
-      trackTitle.innerText = decodeURIComponent(url.pathname.split("/").pop());
+      fetch(`https://noembed.com/embed?url=${bgmList[currentTrack]}`)
+        .then(res => res.json())
+        .then(data => {
+          trackTitle.innerText = data.title || "Unknown Track";
+        })
+        .catch(() => trackTitle.innerText = "Unknown Track");
     }
 
     function nextTrack() {
@@ -221,6 +220,5 @@
       audio.play();
       updateTitle();
     }
-  </script>
-</body>
+  </script></body>
 </html>
