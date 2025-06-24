@@ -34,9 +34,7 @@ jobs:
           URL="${{ github.event.inputs.url }}"
           EXT="${{ github.event.inputs.ext }}"
           FILENAME="zq.${EXT##*.}"
-
           echo "📥 Downloading $URL as $FILENAME"
-
           curl -L "$URL" --output "$FILENAME" || {
             echo "⚠️ curl failed, trying wget..."
             wget -O "$FILENAME" "$URL" || {
@@ -44,7 +42,6 @@ jobs:
               exit 1
             }
           }
-
           if [ ! -s "$FILENAME" ]; then
             echo "❌ Downloaded file is empty or missing"
             exit 1
@@ -52,14 +49,14 @@ jobs:
 
       - name: Upload semua file zq.* ke Telegram
         env:
-          TELEGRAM_TOKEN: ${{ TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ TELEGRAM_USER_ID }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_USER_ID }}
         run: |
           for file in zq.*; do
             if [ -f "$file" ] && [ -s "$file" ]; then
               echo "📤 Mengirim $file ke Telegram..."
-              curl -F chat_id="$TELEGRAM_USER_ID" \
+              curl -F chat_id="$TELEGRAM_CHAT_ID" \
                    -F document=@"$file" \
-                   "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendDocument"
+                   "https://api.telegram.org/bot$TELEGRAM_TOKEN/sendDocument"
             fi
           done
