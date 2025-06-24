@@ -33,7 +33,7 @@ jobs:
             exit 1
           fi
 
-      - name: Download file
+      - name: Download file (with curl fallback to wget)
         run: |
           URL="${{ github.event.inputs.url }}"
           NAME="${{ github.event.inputs.name }}"
@@ -41,22 +41,34 @@ jobs:
 
           FILENAME="downloaded_file"
           [ -n "$NAME" ] && FILENAME="$NAME"
-          [ -n "$EXT" ] && FILENAME="$FILENAME$EXT"
+          [ -n "$EXT" ] && FILENAME="${FILENAME}${EXT}"
 
-          echo "📥 URL: $URL"
-          echo "📦 Output: $FILENAME"
+          echo "📥 Downloading from: $URL"
+          echo "📦 Saving as: $FILENAME"
 
-          curl -L "$URL" --output "$FILENAME"
+          # Try curl first
+          curl -L "$URL" --output "$FILENAME" || {
+            echo "⚠️ curl failed, trying wget..."
+            wget -O "$FILENAME" "$URL" || {
+              echo "❌ wget also failed."
+              exit 1
+            }
+          }
 
-      - name: Debug file
+          # Validate file exists and not empty
+          if [ ! -s "$FILENAME" ]; then
+            echo "❌ Downloaded file is empty or missing"
+            exit 1
+          fi
+
+      - name: Cek hasil download
         run: |
-          echo "🗂 Listing files:"
+          echo "📂 Files in directory:"
           ls -lah
-          echo "🔎 File info:"
-          file "$FILENAME" || echo "⚠️ File tidak ditemukan"
+          echo "🔍 File info:"
+          file "$FILENAME"
 
       - name: Kirim ke Telegram
-        if: success()
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
