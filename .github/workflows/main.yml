@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: Validasi PIN via SHA-256 hash
         run: |
-          echo -n "${{ github.event.inputs.pin }}" | sha256sum | grep -q "d6fcefa5a7d7e54238b1798390a474cb33cf94b3030e616f8b6dc77ab1dc4a4c"
+          echo -n "${{ github.event.inputs.pin }}" | sha256sum | grep -q "427a13912500729a67188e4bf5742fc07122e9919e17b3adca8cc1e2ccd5b898"
           if [ $? -ne 0 ]; then
             echo "❌ PIN salah!"
             exit 1
