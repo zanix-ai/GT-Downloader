@@ -114,7 +114,7 @@
       localStorage.setItem("github_pat", pat);
       log.innerText = "⏳ Mengirim...";
 
-      const res = await fetch("https://api.github.com/repos/zanix-ai/GT-Downloader/actions/workflows/kirim.yml/dispatches", {
+      const res = await fetch("https://api.github.com/repos/zanix-ai/GT-Downloader/actions/workflows/main.yml/dispatches", {
         method: "POST",
         headers: {
           "Authorization": "Bearer " + pat,
