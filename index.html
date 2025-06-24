@@ -78,7 +78,7 @@
 
       localStorage.setItem("pat", pat); // Simpan PAT
 
-      const res = await fetch("https://api.github.com/repos/zanix-ai/GT-Downloader/actions/workflows/kirim.yml/dispatches", {
+      const res = await fetch("https://api.github.com/repos/zanix-ai/GT-Downloader/actions/workflows/main.yml/dispatches", {
         method: "POST",
         headers: {
           "Authorization": "Bearer " + pat,
