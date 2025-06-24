@@ -43,13 +43,25 @@ jobs:
           [ -n "$NAME" ] && FILENAME="$NAME"
           [ -n "$EXT" ] && FILENAME="$FILENAME$EXT"
 
+          echo "📥 URL: $URL"
+          echo "📦 Output: $FILENAME"
+
           curl -L "$URL" --output "$FILENAME"
 
+      - name: Debug file
+        run: |
+          echo "🗂 Listing files:"
+          ls -lah
+          echo "🔎 File info:"
+          file "$FILENAME" || echo "⚠️ File tidak ditemukan"
+
       - name: Kirim ke Telegram
+        if: success()
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
+          echo "🚀 Mengirim $FILENAME ke Telegram..."
           curl -F chat_id="$TELEGRAM_CHAT_ID" \
                -F document=@"$FILENAME" \
                "https://api.telegram.org/bot$TELEGRAM_TOKEN/sendDocument"
