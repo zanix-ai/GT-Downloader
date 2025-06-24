@@ -1,13 +1,59 @@
 <!DOCTYPE html>
-<html>
-<head><title>GT Downloader</title></head>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GT Downloader</title>
+  <style>
+    body {
+      background-color: #111;
+      color: #eee;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background-color: #222;
+      padding: 2rem;
+      border-radius: 16px;
+      box-shadow: 0 0 30px rgba(255,255,255,0.05);
+      width: 90%;
+      max-width: 480px;
+      text-align: center;
+    }
+    input, button {
+      width: 100%;
+      padding: 0.8rem;
+      margin: 0.6rem 0;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 8px;
+    }
+    input {
+      background: #333;
+      color: #eee;
+    }
+    button {
+      background-color: #06f;
+      color: white;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    button:hover {
+      background-color: #0055cc;
+    }
+  </style>
+</head>
 <body>
-  <h2>Masukin Data</h2>
-  <input type="password" id="pin" placeholder="PIN"><br><br>
-  <input type="text" id="link" placeholder="https://..."><br><br>
-  <input type="text" id="pat" placeholder="GitHub PAT"><br><br>
-
-  <button onclick="kirim()">Kirim</button>
+  <div class="container">
+    <h2>GT Downloader 🔒</h2>
+    <input type="password" id="pin" placeholder="Masukkan PIN">
+    <input type="text" id="link" placeholder="Link file (https://...)">
+    <input type="text" id="pat" placeholder="GitHub PAT">
+    <button onclick="kirim()">Kirim ke Telegram</button>
+  </div>
 
   <script>
     async function kirim() {
@@ -24,14 +70,17 @@
         },
         body: JSON.stringify({
           ref: "main",
-          inputs: { pin, url: link }
+          inputs: {
+            pin: pin,
+            url: link
+          }
         })
       });
 
       if (res.ok) {
-        alert("Berhasil dikirim ke Telegram!");
+        alert("✅ Berhasil dikirim ke Telegram!");
       } else {
-        alert("Gagal! Cek PAT, URL, atau PIN.");
+        alert("❌ Gagal! Cek PAT, PIN, atau URL.");
       }
     }
   </script>
