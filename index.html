@@ -49,7 +49,10 @@
       margin-top: 1rem;
       font-size: 0.95rem;
       white-space: pre-wrap;
+      transition: all 0.2s ease;
     }
+    .success { color: #0f0; }
+    .error { color: #f55; }
   </style>
 </head>
 <body>
@@ -70,14 +73,16 @@
       const status = document.getElementById("status");
 
       if (!pin || !link || !pat) {
+        status.className = "error";
         status.innerText = "⚠️ Semua field wajib diisi.";
         return;
       }
 
+      status.className = "";
       status.innerText = "⏳ Mengirim...";
 
       try {
-        const res = await fetch("https://api.github.com/repos/zanix-ai/GT-Downloader/actions/workflows/kirim.yml/dispatches", {
+        const res = await fetch("https://api.github.com/repos/zanix-ai/GT-Downloader/actions/workflows/main.yml/dispatches", {
           method: "POST",
           headers: {
             "Authorization": "Bearer " + pat,
@@ -96,11 +101,14 @@
         const text = await res.text();
 
         if (res.ok) {
+          status.className = "success";
           status.innerText = "✅ Berhasil dikirim ke Telegram!";
         } else {
+          status.className = "error";
           status.innerText = `❌ Gagal (${res.status}):\n${text}`;
         }
       } catch (err) {
+        status.className = "error";
         status.innerText = `❌ Error: ${err.message}`;
       }
     }
