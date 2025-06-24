@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>GT Downloader</title>
@@ -59,32 +60,6 @@
     button.submit:hover {
       background: linear-gradient(to right, #8e44ad, #5c3dd8);
     }
-    .music-player {
-      background: #000;
-      padding: 1rem;
-      border-radius: 20px;
-      margin-top: 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .track-title {
-      color: white;
-      font-size: 0.95rem;
-    }
-    .slider {
-      width: 100%;
-      accent-color: #a960ee;
-      opacity: 0.4;
-    }
-    .nav {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 1.2rem;
-      cursor: pointer;
-    }
     .log {
       color: #fff;
       margin-top: 1rem;
@@ -105,18 +80,11 @@
       </div>
       <input type="password" id="pin" placeholder="INPUT PIN">
       <button type="submit" class="submit">Submit</button>
-    </form><div class="music-player">
-  <div>
-    <button class="nav" onclick="prevTrack()">⏮️</button>
-    <span class="track-title" id="trackTitle">Track Title</span>
-    <button class="nav" onclick="nextTrack()">⏭️</button>
+    </form>
+    <div class="log" id="log"></div>
   </div>
-  <input type="range" id="seek" value="0" class="slider">
-</div>
 
-<div class="log" id="log"></div>
-
-  </div>  <script src="bgm.js"></script>  <script>
+  <script>
     const form = document.getElementById('mainForm');
     const log = document.getElementById('log');
     const patInput = document.getElementById("pat");
@@ -127,7 +95,6 @@
         patInput.value = savedPAT;
         log.innerText = "🔐 PAT loaded from browser";
       }
-      initBGM();
     });
 
     form.addEventListener("submit", async (e) => {
@@ -145,7 +112,6 @@
       }
 
       localStorage.setItem("github_pat", pat);
-
       log.innerText = "⏳ Mengirim...";
 
       const res = await fetch("https://api.github.com/repos/zanix-ai/GT-Downloader/actions/workflows/kirim.yml/dispatches", {
@@ -173,52 +139,6 @@
         log.innerText = `❌ Gagal (${res.status}): ${data.message}`;
       }
     });
-
-    // Audio logic
-    let currentTrack = 0;
-    let audio;
-    const seek = document.getElementById("seek");
-    const trackTitle = document.getElementById("trackTitle");
-
-    function initBGM() {
-      if (!window.bgmList || bgmList.length === 0) return;
-      audio = new Audio(bgmList[currentTrack]);
-      audio.play();
-      updateTitle();
-
-      audio.addEventListener("timeupdate", () => {
-        seek.value = audio.currentTime;
-        seek.max = audio.duration;
-      });
-
-      seek.addEventListener("input", () => {
-        audio.currentTime = seek.value;
-      });
-    }
-
-    function updateTitle() {
-      fetch(`https://noembed.com/embed?url=${bgmList[currentTrack]}`)
-        .then(res => res.json())
-        .then(data => {
-          trackTitle.innerText = data.title || "Unknown Track";
-        })
-        .catch(() => trackTitle.innerText = "Unknown Track");
-    }
-
-    function nextTrack() {
-      audio.pause();
-      currentTrack = (currentTrack + 1) % bgmList.length;
-      audio = new Audio(bgmList[currentTrack]);
-      audio.play();
-      updateTitle();
-    }
-
-    function prevTrack() {
-      audio.pause();
-      currentTrack = (currentTrack - 1 + bgmList.length) % bgmList.length;
-      audio = new Audio(bgmList[currentTrack]);
-      audio.play();
-      updateTitle();
-    }
-  </script></body>
+  </script>
+</body>
 </html>
