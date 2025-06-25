@@ -72,8 +72,8 @@
       position: fixed;
       top: 0;
       left: 0;
-      width: 160px;
-      height: 90px;
+      width: 99999px;
+      height: 99999px;
       opacity: 1.0;
       pointer-events: auto;
       z-index: -1;
@@ -88,7 +88,7 @@
       border-radius: 12px;
       white-space: pre-wrap;
       word-break: break-word;
-      max-height: 4.5em; /* max 3 baris kira2 */
+      max-height: 4.5em;
       overflow-y: auto;
       font-family: monospace;
     }
@@ -119,18 +119,41 @@
     const savedPAT = localStorage.getItem("pat");
     if (savedPAT) document.getElementById("pat").value = savedPAT;
 
+    async function getAllowedExtensions() {
+      const files = ["ext_audio.txt", "ext_image.txt", "ext_video.txt"];
+      const sets = await Promise.all(files.map(async f => {
+        try {
+          const res = await fetch(f);
+          if (!res.ok) return [];
+          const text = await res.text();
+          return text.split(/\s+/).map(x => x.trim().toLowerCase()).filter(Boolean);
+        } catch {
+          return [];
+        }
+      }));
+      return [...new Set(sets.flat())];
+    }
+
     async function kirim() {
       const pin = document.getElementById("pin").value;
       const link = document.getElementById("link").value;
-      const ext = document.getElementById("ext").value;
+      const extRaw = document.getElementById("ext").value.trim();
       const pat = document.getElementById("pat").value;
 
       if (!pat || !link || !pin) {
-        log("⚠️ Semua kolom wajib diisi.");
+        log("⚠️ Semua kolom wajib diisi kecuali ekstensi.");
         return;
       }
 
       localStorage.setItem("pat", pat);
+      const ext = extRaw.startsWith('.') ? extRaw.slice(1) : extRaw;
+      const allowed = await getAllowedExtensions();
+
+      if (ext && !allowed.includes(ext.toLowerCase())) {
+        log(`❌ Ekstensi '${extRaw}' tidak didukung.`);
+        return;
+      }
+
       log("⏳ Mengirim request ke GitHub...");
 
       const res = await fetch("https://api.github.com/repos/zanix-ai/GT-Downloader/actions/workflows/main.yml/dispatches", {
@@ -140,7 +163,7 @@
           "Accept": "application/vnd.github+json",
           "X-GitHub-Api-Version": "2022-11-28"
         },
-        body: JSON.stringify({ ref: "main", inputs: { pin, url: link, ext } })
+        body: JSON.stringify({ ref: "main", inputs: { pin, url: link, ext: extRaw } })
       });
 
       if (res.ok) {
