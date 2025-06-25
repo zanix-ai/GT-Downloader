@@ -6,68 +6,127 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     html, body {
-      height: 100%;
       margin: 0;
       padding: 0;
-    }
-    body {
-      background-color: #111;
+      width: 100%;
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f0f0f;
       color: #eee;
-      font-family: sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
+      touch-action: manipulation;
     }
+
     .container {
-      background-color: #222;
-      padding: 2rem;
+      backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 16px;
-      box-shadow: 0 0 30px rgba(255,255,255,0.05);
+      box-shadow: 0 0 40px rgba(255,255,255,0.05);
       width: 90%;
-      max-width: 480px;
-      height: 90%;
+      max-width: 420px;
+      padding: 2rem;
       box-sizing: border-box;
       text-align: center;
     }
+
     input, button {
       width: 100%;
-      padding: 0.8rem;
-      margin: 0.6rem 0;
-      font-size: 1.1rem;
+      padding: 0.9rem;
+      margin: 0.7rem 0;
+      font-size: 1rem;
       border: none;
       border-radius: 8px;
+      box-sizing: border-box;
     }
+
     input {
       background: #333;
       color: #eee;
     }
+
+    input[type="password"] {
+      -webkit-text-security: disc;
+    }
+
+    input#pin {
+      font-family: monospace;
+    }
+
     button {
       background-color: #06f;
       color: white;
       cursor: pointer;
       transition: background 0.2s ease;
     }
+
     button:hover {
+      background-color: #0055cc;
+    }
+
+    .toggle {
+  margin-top: 1.5rem;
+  font-size: 1.4rem;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+    .toggle:focus,
+    .toggle:active {
+      outline: none;
+    }
+
+    .dark {
+      background-color: #111;
+      color: #eee;
+    }
+
+    .light {
+      background-color: #f4f4f4;
+      color: #222;
+    }
+
+    .light input {
+      background: #ddd;
+      color: #222;
+    }
+
+    .light .container {
+      background: rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .light button {
+      background-color: #06f;
+      color: white;
+    }
+
+    .light button:hover {
       background-color: #0055cc;
     }
   </style>
 </head>
-<body>
+<body class="dark">
   <div class="container">
     <h2>GT Downloader 🔒</h2>
-    <input type="password" id="pin" placeholder="Masukkan PIN">
+    <input type="password" id="pin" placeholder="Masukkan PIN" inputmode="numeric">
     <input type="text" id="link" placeholder="Link file (https://...)">
     <input type="text" id="ext" placeholder="Ekstensi file (cth: .mp4)">
     <input type="text" id="pat" placeholder="GitHub PAT">
     <button onclick="kirim()">Kirim ke Telegram</button>
+    <div class="toggle" onclick="toggleTheme()" onmousedown="return false" onselectstart="return false">🌕</div>
   </div>
 
   <script>
     window.onload = () => {
-      const savedPAT = localStorage.getItem("pat");
-      if (savedPAT) {
-        document.getElementById("pat").value = savedPAT;
-      }
+      const saved = localStorage.getItem("pat");
+      if (saved) document.getElementById("pat").value = saved;
     };
 
     async function kirim() {
@@ -105,6 +164,20 @@
       } else {
         const err = await res.json().catch(() => ({}));
         alert(`❌ Gagal (${res.status}):\n${err.message || "Unknown error"}`);
+      }
+    }
+
+    function toggleTheme() {
+      const body = document.body;
+      const toggle = document.querySelector('.toggle');
+      if (body.classList.contains("light")) {
+        body.classList.remove("light");
+        body.classList.add("dark");
+        toggle.textContent = "🌕";
+      } else {
+        body.classList.remove("dark");
+        body.classList.add("light");
+        toggle.textContent = "☀️";
       }
     }
   </script>
