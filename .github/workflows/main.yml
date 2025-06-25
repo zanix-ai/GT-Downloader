@@ -21,6 +21,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - name: Cek PIN
         run: |
           echo -n "${{ github.event.inputs.pin }}" | sha256sum | grep -q "427a13912500729a67188e4bf5742fc07122e9919e17b3adca8cc1e2ccd5b898"
@@ -55,6 +58,11 @@ jobs:
           is_in_list() {
             grep -qixF "$1" "$2"
           }
+
+          # Cek dulu file .txt ada atau gak
+          for f in ext_audio.txt ext_video.txt ext_image.txt; do
+            [ ! -f "$f" ] && echo "❌ File ekstensi $f gak ketemu" && exit 1
+          done
 
           for file in zq.*; do
             [ ! -s "$file" ] && continue
