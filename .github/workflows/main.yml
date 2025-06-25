@@ -52,11 +52,30 @@ jobs:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_USER_ID }}
         run: |
+          is_in_list() {
+            grep -qixF "$1" "$2"
+          }
+
           for file in zq.*; do
-            if [ -f "$file" ] && [ -s "$file" ]; then
-              echo "📤 Mengirim $file ke Telegram..."
-              curl -F chat_id="$TELEGRAM_CHAT_ID" \
-                   -F document=@"$file" \
-                   "https://api.telegram.org/bot$TELEGRAM_TOKEN/sendDocument"
+            [ ! -s "$file" ] && continue
+            EXT="${file##*.}"
+
+            if is_in_list "$EXT" ext_image.txt; then
+              ENDPOINT="sendPhoto"
+              FIELD="photo"
+            elif is_in_list "$EXT" ext_video.txt; then
+              ENDPOINT="sendVideo"
+              FIELD="video"
+            elif is_in_list "$EXT" ext_audio.txt; then
+              ENDPOINT="sendAudio"
+              FIELD="audio"
+            else
+              ENDPOINT="sendDocument"
+              FIELD="document"
             fi
+
+            echo "📤 Mengirim $file sebagai $FIELD..."
+            curl -s -o /dev/null -w "%{http_code}" -F chat_id="$TELEGRAM_CHAT_ID" \
+                 -F "$FIELD"=@"$file" \
+                 "https://api.telegram.org/bot$TELEGRAM_TOKEN/$ENDPOINT"
           done
