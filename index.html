@@ -2,117 +2,76 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>GT Downloader</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GT Downloader</title>
   <style>
-    html, body {
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --card: #eeeeee;
+      --input: #cccccc;
+      --button: #0055ff;
+    }
+    body.dark {
+      --bg: #111111;
+      --text: #eeeeee;
+      --card: #222222;
+      --input: #333333;
+    }
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      width: 100%;
+      -webkit-tap-highlight-color: transparent;
+    }
+    html, body {
       height: 100%;
-      font-family: 'Segoe UI', sans-serif;
-      background: #0f0f0f;
-      color: #eee;
+      width: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
-      touch-action: manipulation;
     }
-
     .container {
-      backdrop-filter: blur(12px);
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      box-shadow: 0 0 40px rgba(255,255,255,0.05);
-      width: 90%;
-      max-width: 420px;
+      background: var(--card);
       padding: 2rem;
-      box-sizing: border-box;
+      border-radius: 16px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.15);
+      width: 90%;
+      max-width: 480px;
       text-align: center;
     }
-
     input, button {
       width: 100%;
-      padding: 0.9rem;
-      margin: 0.7rem 0;
+      padding: 0.8rem;
+      margin: 0.6rem 0;
       font-size: 1rem;
       border: none;
       border-radius: 8px;
-      box-sizing: border-box;
     }
-
     input {
-      background: #333;
-      color: #eee;
+      background: var(--input);
+      color: var(--text);
     }
-
-    input[type="password"] {
-      -webkit-text-security: disc;
-    }
-
-    input#pin {
-      font-family: monospace;
-    }
-
     button {
-      background-color: #06f;
-      color: white;
+      background: var(--button);
+      color: #fff;
       cursor: pointer;
-      transition: background 0.2s ease;
     }
-
-    button:hover {
-      background-color: #0055cc;
+    #darkToggle {
+      margin-top: 1rem;
+      background: transparent;
+      font-size: 1.5rem;
+      line-height: 1;
     }
-
-    .toggle {
-  margin-top: 1.5rem;
-  font-size: 1.4rem;
-  cursor: pointer;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-    .toggle:focus,
-    .toggle:active {
-      outline: none;
-    }
-
-    .dark {
-      background-color: #111;
-      color: #eee;
-    }
-
-    .light {
-      background-color: #f4f4f4;
-      color: #222;
-    }
-
-    .light input {
-      background: #ddd;
-      color: #222;
-    }
-
-    .light .container {
-      background: rgba(0, 0, 0, 0.05);
-      border: 1px solid rgba(0, 0, 0, 0.1);
-    }
-
-    .light button {
-      background-color: #06f;
-      color: white;
-    }
-
-    .light button:hover {
-      background-color: #0055cc;
+    #player {
+      display: none;
     }
   </style>
 </head>
-<body class="dark">
+<body>
   <div class="container">
     <h2>GT Downloader 🔒</h2>
     <input type="password" id="pin" placeholder="Masukkan PIN" inputmode="numeric">
@@ -120,14 +79,14 @@
     <input type="text" id="ext" placeholder="Ekstensi file (cth: .mp4)">
     <input type="text" id="pat" placeholder="GitHub PAT">
     <button onclick="kirim()">Kirim ke Telegram</button>
-    <div class="toggle" onclick="toggleTheme()" onmousedown="return false" onselectstart="return false">🌕</div>
+    <button id="darkToggle" onclick="toggleDark()">🌕</button>
   </div>
 
+  <div id="player"></div>
+
   <script>
-    window.onload = () => {
-      const saved = localStorage.getItem("pat");
-      if (saved) document.getElementById("pat").value = saved;
-    };
+    const savedPAT = localStorage.getItem("pat");
+    if (savedPAT) document.getElementById("pat").value = savedPAT;
 
     async function kirim() {
       const pin = document.getElementById("pin").value;
@@ -151,11 +110,7 @@
         },
         body: JSON.stringify({
           ref: "main",
-          inputs: {
-            pin: pin,
-            url: link,
-            ext: ext
-          }
+          inputs: { pin, url: link, ext }
         })
       });
 
@@ -167,19 +122,43 @@
       }
     }
 
-    function toggleTheme() {
-      const body = document.body;
-      const toggle = document.querySelector('.toggle');
-      if (body.classList.contains("light")) {
-        body.classList.remove("light");
-        body.classList.add("dark");
-        toggle.textContent = "🌕";
-      } else {
-        body.classList.remove("dark");
-        body.classList.add("light");
-        toggle.textContent = "☀️";
-      }
+    // Toggle dark mode
+    function toggleDark() {
+      document.body.classList.toggle("dark");
+      const icon = document.getElementById("darkToggle");
+      icon.textContent = document.body.classList.contains("dark") ? "☀️" : "🌕";
     }
+
+    // YouTube autoplay setup
+    let playerReady = false;
+    function onYouTubeIframeAPIReady() {
+      new YT.Player('player', {
+        height: '0',
+        width: '0',
+        videoId: 'O2ct-cdupHU',
+        playerVars: {
+          autoplay: 1,
+          controls: 0,
+          mute: 1,
+          loop: 1,
+          playlist: 'O2ct-cdupHU'
+        },
+        events: {
+          onReady: (e) => {
+            playerReady = true;
+          }
+        }
+      });
+    }
+
+    // Trigger autoplay on any click
+    document.addEventListener('click', () => {
+      const iframe = document.querySelector("iframe");
+      if (iframe && iframe.contentWindow) {
+        iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+      }
+    }, { once: true });
   </script>
+  <script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
