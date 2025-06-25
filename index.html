@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GT Downloader</title>
   <style>
     :root {
@@ -32,7 +32,7 @@
       background: var(--card);
       padding: 2rem;
       border-radius: 16px;
-      box-shadow: 0 0 30px rgba(255,255,255,0.05);
+      box-shadow: 0 0 30px rgba(0,0,0,0.15);
       width: 90%;
       max-width: 480px;
       text-align: center;
@@ -41,7 +41,7 @@
       width: 100%;
       padding: 0.8rem;
       margin: 0.6rem 0;
-      font-size: 1.1rem;
+      font-size: 1rem;
       border: none;
       border-radius: 8px;
     }
@@ -50,16 +50,27 @@
       color: var(--text);
     }
     button {
-      background-color: var(--button);
-      color: white;
+      background: var(--button);
+      color: #fff;
       cursor: pointer;
     }
+    #darkToggle {
+      margin-top: 1rem;
+      background: transparent;
+      font-size: 1.5rem;
+      line-height: 1;
+      user-select: none;
+    }
     #player {
-      display: none;
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0.01;
+      pointer-events: none;
     }
   </style>
 </head>
-<body>
+<body class="dark">
   <div class="container">
     <h2>GT Downloader 🔒</h2>
     <input type="password" id="pin" placeholder="Masukkan PIN" inputmode="numeric">
@@ -67,6 +78,7 @@
     <input type="text" id="ext" placeholder="Ekstensi file (cth: .mp4)">
     <input type="text" id="pat" placeholder="GitHub PAT">
     <button onclick="kirim()">Kirim ke Telegram</button>
+    <button id="darkToggle" onclick="toggleDark()">☀️</button>
   </div>
 
   <div id="player"></div>
@@ -109,16 +121,19 @@
       }
     }
 
-    // YouTube setup
-    let ytPlayer;
-    let playerReady = false;
+    function toggleDark() {
+      document.body.classList.toggle("dark");
+      const icon = document.getElementById("darkToggle");
+      icon.textContent = document.body.classList.contains("dark") ? "☀️" : "🌕";
+    }
+
     function onYouTubeIframeAPIReady() {
-      ytPlayer = new YT.Player('player', {
+      new YT.Player('player', {
         height: '0',
         width: '0',
         videoId: 'O2ct-cdupHU',
         playerVars: {
-          autoplay: 0,
+          autoplay: 1,
           controls: 0,
           mute: 1,
           loop: 1,
@@ -126,17 +141,17 @@
         },
         events: {
           onReady: () => {
-            playerReady = true;
+            // autoplay trigger via click
+            document.addEventListener('click', () => {
+              const iframe = document.querySelector("iframe");
+              if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+              }
+            }, { once: true });
           }
         }
       });
     }
-
-    document.addEventListener('click', () => {
-      if (playerReady && ytPlayer) {
-        ytPlayer.playVideo();
-      }
-    }, { once: true });
   </script>
   <script src="https://www.youtube.com/iframe_api"></script>
 </body>
