@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GT Downloader</title>
   <style>
     :root {
@@ -11,6 +11,12 @@
       --card: #222;
       --input: #333;
       --button: #06f;
+    }
+    body.light {
+      --bg: #fff;
+      --text: #111;
+      --card: #eee;
+      --input: #ccc;
     }
     * {
       box-sizing: border-box;
@@ -27,6 +33,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      flex-direction: column;
     }
     .container {
       background: var(--card);
@@ -62,28 +69,53 @@
       user-select: none;
     }
     #player {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      opacity: 0.01;
-      pointer-events: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 160px;
+      height: 90px;
+      opacity: 1.0;
+      pointer-events: auto;
+      z-index: -1;
+    }
+    #log {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      width: 90%;
+      max-width: 480px;
+      background: #0006;
+      padding: 1rem;
+      border-radius: 12px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 4.5em; /* max 3 baris kira2 */
+      overflow-y: auto;
+      font-family: monospace;
     }
   </style>
 </head>
 <body class="dark">
   <div class="container">
     <h2>GT Downloader 🔒</h2>
-    <input type="password" id="pin" placeholder="Masukkan PIN" inputmode="numeric">
-    <input type="text" id="link" placeholder="Link file (https://...)">
-    <input type="text" id="ext" placeholder="Ekstensi file (cth: .mp4)">
-    <input type="text" id="pat" placeholder="GitHub PAT">
+    <input type="password" id="pin" placeholder="Masukkan PIN" inputmode="numeric" />
+    <input type="text" id="link" placeholder="Link file (https://...)" />
+    <input type="text" id="ext" placeholder="Ekstensi file (cth: .mp4)" />
+    <input type="text" id="pat" placeholder="GitHub PAT" />
     <button onclick="kirim()">Kirim ke Telegram</button>
     <button id="darkToggle" onclick="toggleDark()">☀️</button>
   </div>
 
+  <div id="log"></div>
   <div id="player"></div>
 
   <script>
+    const logBox = document.getElementById("log");
+    const log = (msg) => {
+      const time = new Date().toLocaleTimeString();
+      logBox.textContent += `[${time}] ${msg}\n`;
+      logBox.scrollTop = logBox.scrollHeight;
+    };
+
     const savedPAT = localStorage.getItem("pat");
     if (savedPAT) document.getElementById("pat").value = savedPAT;
 
@@ -94,11 +126,12 @@
       const pat = document.getElementById("pat").value;
 
       if (!pat || !link || !pin) {
-        alert("⚠️ Semua kolom wajib diisi kecuali ekstensi.");
+        log("⚠️ Semua kolom wajib diisi.");
         return;
       }
 
       localStorage.setItem("pat", pat);
+      log("⏳ Mengirim request ke GitHub...");
 
       const res = await fetch("https://api.github.com/repos/zanix-ai/GT-Downloader/actions/workflows/main.yml/dispatches", {
         method: "POST",
@@ -107,52 +140,51 @@
           "Accept": "application/vnd.github+json",
           "X-GitHub-Api-Version": "2022-11-28"
         },
-        body: JSON.stringify({
-          ref: "main",
-          inputs: { pin, url: link, ext }
-        })
+        body: JSON.stringify({ ref: "main", inputs: { pin, url: link, ext } })
       });
 
       if (res.ok) {
-        alert("✅ Berhasil dikirim ke Telegram!");
+        log("✅ Berhasil dikirim ke Telegram!");
       } else {
         const err = await res.json().catch(() => ({}));
-        alert(`❌ Gagal (${res.status}):\n${err.message || "Unknown error"}`);
+        log(`❌ Gagal (${res.status}): ${err.message || "Unknown error"}`);
       }
     }
 
     function toggleDark() {
-      document.body.classList.toggle("dark");
-      const icon = document.getElementById("darkToggle");
-      icon.textContent = document.body.classList.contains("dark") ? "☀️" : "🌕";
+      const isDark = document.body.classList.toggle("dark");
+      document.body.classList.toggle("light", !isDark);
+      document.getElementById("darkToggle").textContent = isDark ? "☀️" : "🌕";
     }
 
-    function onYouTubeIframeAPIReady() {
-      new YT.Player('player', {
-        height: '0',
-        width: '0',
+    let ytPlayer;
+    window.onYouTubeIframeAPIReady = function () {
+      ytPlayer = new YT.Player('player', {
         videoId: 'O2ct-cdupHU',
         playerVars: {
-          autoplay: 1,
+          autoplay: 0,
           controls: 0,
-          mute: 1,
+          mute: 0,
           loop: 1,
-          playlist: 'O2ct-cdupHU'
+          playlist: 'O2ct-cdupHU',
+          modestbranding: 1,
+          rel: 0
         },
         events: {
           onReady: () => {
-            // autoplay trigger via click
+            log("🎵 YouTube player ready.");
             document.addEventListener('click', () => {
-              const iframe = document.querySelector("iframe");
-              if (iframe && iframe.contentWindow) {
-                iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
-              }
+              ytPlayer.unMute();
+              ytPlayer.setPlaybackQuality('tiny');
+              ytPlayer.playVideo();
+              log("▶️ YouTube video started.");
             }, { once: true });
           }
         }
       });
-    }
+    };
   </script>
+
   <script src="https://www.youtube.com/iframe_api"></script>
 </body>
 </html>
