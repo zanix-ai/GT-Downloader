@@ -59,7 +59,7 @@ jobs:
             grep -qixF "$1" "$2"
           }
 
-          # Cek dulu file .txt ada atau gak
+          # Cek dulu file ekstensi
           for f in ext_audio.txt ext_video.txt ext_image.txt; do
             [ ! -f "$f" ] && echo "❌ File ekstensi $f gak ketemu" && exit 1
           done
@@ -68,7 +68,10 @@ jobs:
             [ ! -s "$file" ] && continue
             EXT="${file##*.}"
 
-            if is_in_list "$EXT" ext_image.txt; then
+            if [ "$EXT" = "gif" ]; then
+              ENDPOINT="sendAnimation"
+              FIELD="animation"
+            elif is_in_list "$EXT" ext_image.txt; then
               ENDPOINT="sendPhoto"
               FIELD="photo"
             elif is_in_list "$EXT" ext_video.txt; then
