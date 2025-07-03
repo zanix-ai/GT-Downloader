@@ -51,6 +51,7 @@ jobs:
           fi
 
       - name: Upload semua file zq.* ke Telegram
+        shell: bash
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_USER_ID }}
@@ -88,11 +89,11 @@ jobs:
             echo "📤 Mengirim $file sebagai $FIELD..."
 
             if [ "$FIELD" = "animation" ]; then
-              curl -s -o /dev/null -w "%{http_code}" -F chat_id="$TELEGRAM_CHAT_ID" \
+              curl -v -F chat_id="$TELEGRAM_CHAT_ID" \
                    -F "animation=@$file;type=image/gif" \
                    "https://api.telegram.org/bot$TELEGRAM_TOKEN/$ENDPOINT"
             else
-              curl -s -o /dev/null -w "%{http_code}" -F chat_id="$TELEGRAM_CHAT_ID" \
+              curl -v -F chat_id="$TELEGRAM_CHAT_ID" \
                    -F "$FIELD"=@"$file" \
                    "https://api.telegram.org/bot$TELEGRAM_TOKEN/$ENDPOINT"
             fi
