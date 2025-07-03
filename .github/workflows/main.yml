@@ -59,7 +59,7 @@ jobs:
             grep -qixF "$1" "$2"
           }
 
-          # Cek dulu file ekstensi
+          # Cek file ekstensi
           for f in ext_audio.txt ext_video.txt ext_image.txt; do
             [ ! -f "$f" ] && echo "❌ File ekstensi $f gak ketemu" && exit 1
           done
@@ -86,7 +86,13 @@ jobs:
             fi
 
             echo "📤 Mengirim $file sebagai $FIELD..."
-            curl -s -o /dev/null -w "%{http_code}" -F chat_id="$TELEGRAM_CHAT_ID" \
-                 -F "$FIELD"=@"$file" \
-                 "https://api.telegram.org/bot$TELEGRAM_TOKEN/$ENDPOINT"
-          done
+
+            if [ "$FIELD" = "animation" ]; then
+              curl -s -o /dev/null -w "%{http_code}" -F chat_id="$TELEGRAM_CHAT_ID" \
+                   -F "animation=@$file;type=image/gif" \
+                   "https://api.telegram.org/bot$TELEGRAM_TOKEN/$ENDPOINT"
+            else
+              curl -s -o /dev/null -w "%{http_code}" -F chat_id="$TELEGRAM_CHAT_ID" \
+                   -F "$FIELD"=@"$file" \
+                   "https://api.telegram.org/bot$TELEGRAM_TOKEN/$ENDPOINT"
+            fi
