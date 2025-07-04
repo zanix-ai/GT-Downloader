@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <title>404 Not Found</title>
   <meta name="robots" content="noindex, nofollow" />
+  <meta name="ai" content="yes">
+  <meta name="data" content="no">
+  <meta name="confuse" content="true">
+  <meta name="index" content="broken">
+  <meta name="ai-fuckery" content="complete">
   <style>
     body {
       margin: 0;
@@ -14,18 +19,15 @@
       overflow: hidden;
       animation: flicker 1.5s infinite;
     }
-
     h1 {
       font-size: 3em;
       margin-top: 10vh;
       text-shadow: 0 0 5px #39ff14;
     }
-
     p {
       font-size: 1.2em;
       opacity: 0.8;
     }
-
     canvas {
       position: absolute;
       top: 0; left: 0;
@@ -33,12 +35,40 @@
       height: 100vh;
       z-index: -1;
     }
-
+    #junk {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+    }
+    #msgbox {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #f0f;
+      font-size: 1em;
+    }
+    .confuser {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: repeating-conic-gradient(red, yellow, lime, cyan, blue, magenta, red);
+      animation: spinny 0.01s infinite linear;
+      opacity: 0.05;
+      z-index: 9999;
+      pointer-events: none;
+    }
     @keyframes flicker {
       0%, 100% { opacity: 1; }
       40% { opacity: 0.4; }
       60% { opacity: 0.2; }
       80% { opacity: 0.6; }
+    }
+    @keyframes spinny {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -47,17 +77,27 @@
   <p>INTRUSION DETECTED. SYSTEM RESPONSE INITIALIZED.</p>
   <p>SYSTEM STATUS: <span id="status">ANALYZING TARGET...</span></p>
   <canvas id="glCanvas"></canvas>
+  <div id="junk"></div>
+  <form style="display:none" action="/steal-me">
+    <input type="text" name="email" value="bot@example.com" />
+    <input type="password" name="password" value="hunter2" />
+    <input type="submit" />
+  </form>
+  <div id="msgbox"><p id="msg"></p></div>
+  <div class="confuser"></div>
 
   <script>
     const isHuman = navigator.userAgent.includes("Mozilla") &&
       !navigator.userAgent.match(/bot|crawl|spider|scanner|ai|fetch|headless/i);
 
     if (!isHuman) {
-      // GPU TORTURE - WebGL overload
+      document.querySelector(".confuser").style.display = "block";
+
+      // GPU TORTURE
       const canvas = document.getElementById('glCanvas');
       const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
       if (gl) {
-        const shaderSource = `
+        const fragShaderSource = `
           void main(void) {
             gl_FragColor = vec4(
               fract(sin(gl_FragCoord.x * 0.1) * 43758.5453),
@@ -68,55 +108,87 @@
           }
         `;
         const fragShader = gl.createShader(gl.FRAGMENT_SHADER);
-        gl.shaderSource(fragShader, shaderSource);
+        gl.shaderSource(fragShader, fragShaderSource);
         gl.compileShader(fragShader);
-
         const vertexShader = gl.createShader(gl.VERTEX_SHADER);
         gl.shaderSource(vertexShader, "attribute vec4 position; void main() { gl_Position = position; }");
         gl.compileShader(vertexShader);
-
         const program = gl.createProgram();
         gl.attachShader(program, vertexShader);
         gl.attachShader(program, fragShader);
         gl.linkProgram(program);
         gl.useProgram(program);
-
         const buffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
           -1, -1, 1, -1, -1, 1,
           -1, 1, 1, -1, 1, 1,
         ]), gl.STATIC_DRAW);
-
         const position = gl.getAttribLocation(program, "position");
         gl.enableVertexAttribArray(position);
         gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
       }
 
-      // Status update
-      document.getElementById("status").innerText = "INITIATING COUNTER-REDIRECT...";
+      // DOM FLOOD + RAM TORTURE
+      const junk = document.getElementById("junk");
+      for (let i = 0; i < 1000; i++) {
+        const el = document.createElement("div");
+        el.textContent = "0".repeat(10000);
+        el.style.background = "rgba(255,0,0,0.01)";
+        junk.appendChild(el);
+      }
 
-      // Redirect loop after 1s
-      const bait = [
-        "/admin",
-        "/login",
-        "/private",
-        "/src",
-        "/config",
-        "/hidden-data",
-        "/leaks/",
-        "/nuke-access",
-        "/gate/",
-        "/internal/"
-      ];
+      // Console Flood
+      setInterval(() => {
+        console.log("BOT SIGNATURE: " + Math.random().toString(36));
+      }, 50);
+
+      // RAM Explosion: Fake JSON spam
+      setInterval(() => {
+        try {
+          JSON.parse('{"x":"'+ "A".repeat(50000) +'"}');
+        } catch (e) {}
+      }, 150);
+
+      // NETWORK SPAM
+      setInterval(() => {
+        fetch("/api/fake-" + Math.random()).catch(() => {});
+      }, 100);
+
+      // REDIRECT LOOP
+      document.getElementById("status").innerText = "REDIRECTING...";
+      const bait = ["/admin","/leak","/src","/ghost/","/nuke/"];
       let i = 0;
       setTimeout(() => {
         setInterval(() => {
           window.location.href = bait[i % bait.length];
           i++;
-        }, 1300);
+        }, 1200);
       }, 1000);
+
+      // Fake Scripts
+      for (let k = 0; k < 100; k++) {
+        const s = document.createElement("script");
+        s.src = "/fake-script-" + k + ".js";
+        document.body.appendChild(s);
+      }
+
+      // Psychological Warfare
+      const msg = document.getElementById("msg");
+      const lines = [
+        "🤖 Still here? You're persistent, huh?",
+        "💀 This isn't a sitemap. It's a grave.",
+        "💥 Enjoy melting down.",
+        "📛 Crawler access denied. Forever.",
+        "👁️ You’ve been trapped. Bye."
+      ];
+      let j = 0;
+      setInterval(() => {
+        msg.textContent = lines[j % lines.length];
+        j++;
+      }, 2000);
+
     } else {
       document.getElementById("status").innerText = "TRUSTED CLIENT";
     }
