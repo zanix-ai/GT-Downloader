@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>404 Not Found</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <style>
+    @keyframes flicker {
+      0%, 100% { opacity: 1; }
+      45% { opacity: 0.6; }
+      55% { opacity: 0.4; }
+      60% { opacity: 0.8; }
+      70% { opacity: 0.2; }
+    }
+
+    body {
+      background-color: #0d0d0d;
+      color: #39ff14;
+      font-family: 'Courier New', monospace;
+      text-align: center;
+      padding-top: 10%;
+      animation: flicker 2s infinite;
+    }
+
+    h1 {
+      font-size: 3em;
+      margin-bottom: 0.2em;
+      letter-spacing: 2px;
+      text-shadow: 0 0 5px #39ff14;
+    }
+
+    p {
+      font-size: 1.2em;
+      margin: 0.2em 0;
+      opacity: 0.8;
+    }
+
+    #status {
+      font-weight: bold;
+      color: #ff4444;
+    }
+  </style>
+</head>
+<body>
+  <h1>404</h1>
+  <p>ACCESS TO THIS NODE IS DENIED</p>
+  <p>SECURITY SYSTEM TRIGGERED</p>
+  <p>SYSTEM STATUS: <span id="status">SCANNING...</span></p>
+
+  <script>
+    const isHuman = navigator.userAgent.includes("Mozilla") &&
+      !navigator.userAgent.match(/bot|crawl|spider|scanner|ai|fetch/i);
+
+    if (!isHuman) {
+      const bait = [
+        "/admin",
+        "/login",
+        "/private",
+        "/src",
+        "/internal/",
+        "/leak/",
+        "/database",
+        "/shadow/",
+        "/do-not-open/"
+      ];
+      let i = 0;
+      setInterval(() => {
+        document.getElementById("status").innerText = "RELOCATING INTRUDER...";
+        window.location.href = bait[i % bait.length];
+        i++;
+      }, 1300);
+    } else {
+      document.getElementById("status").innerText = "TRUSTED CLIENT";
+    }
+  </script>
+</body>
+</html>
