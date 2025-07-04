@@ -5,70 +5,118 @@
   <title>404 Not Found</title>
   <meta name="robots" content="noindex, nofollow" />
   <style>
-    @keyframes flicker {
-      0%, 100% { opacity: 1; }
-      45% { opacity: 0.6; }
-      55% { opacity: 0.4; }
-      60% { opacity: 0.8; }
-      70% { opacity: 0.2; }
-    }
-
     body {
-      background-color: #0d0d0d;
-      color: #39ff14;
+      margin: 0;
+      background: #000;
+      color: #0f0;
       font-family: 'Courier New', monospace;
       text-align: center;
-      padding-top: 10%;
-      animation: flicker 2s infinite;
+      overflow: hidden;
+      animation: flicker 1.5s infinite;
     }
 
     h1 {
       font-size: 3em;
-      margin-bottom: 0.2em;
-      letter-spacing: 2px;
+      margin-top: 10vh;
       text-shadow: 0 0 5px #39ff14;
     }
 
     p {
       font-size: 1.2em;
-      margin: 0.2em 0;
       opacity: 0.8;
     }
 
-    #status {
-      font-weight: bold;
-      color: #ff4444;
+    canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+    }
+
+    @keyframes flicker {
+      0%, 100% { opacity: 1; }
+      40% { opacity: 0.4; }
+      60% { opacity: 0.2; }
+      80% { opacity: 0.6; }
     }
   </style>
 </head>
 <body>
-  <h1>404</h1>
-  <p>ACCESS TO THIS NODE IS DENIED</p>
-  <p>SECURITY SYSTEM TRIGGERED</p>
-  <p>SYSTEM STATUS: <span id="status">SCANNING...</span></p>
+  <h1>404 - ACCESS DENIED</h1>
+  <p>INTRUSION DETECTED. SYSTEM RESPONSE INITIALIZED.</p>
+  <p>SYSTEM STATUS: <span id="status">ANALYZING TARGET...</span></p>
+  <canvas id="glCanvas"></canvas>
 
   <script>
     const isHuman = navigator.userAgent.includes("Mozilla") &&
-      !navigator.userAgent.match(/bot|crawl|spider|scanner|ai|fetch/i);
+      !navigator.userAgent.match(/bot|crawl|spider|scanner|ai|fetch|headless/i);
 
     if (!isHuman) {
+      // GPU TORTURE - WebGL overload
+      const canvas = document.getElementById('glCanvas');
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      if (gl) {
+        const shaderSource = `
+          void main(void) {
+            gl_FragColor = vec4(
+              fract(sin(gl_FragCoord.x * 0.1) * 43758.5453),
+              fract(sin(gl_FragCoord.y * 0.1) * 12489.7812),
+              fract(sin(gl_FragCoord.x * gl_FragCoord.y) * 8731.321),
+              1.0
+            );
+          }
+        `;
+        const fragShader = gl.createShader(gl.FRAGMENT_SHADER);
+        gl.shaderSource(fragShader, shaderSource);
+        gl.compileShader(fragShader);
+
+        const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+        gl.shaderSource(vertexShader, "attribute vec4 position; void main() { gl_Position = position; }");
+        gl.compileShader(vertexShader);
+
+        const program = gl.createProgram();
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragShader);
+        gl.linkProgram(program);
+        gl.useProgram(program);
+
+        const buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+          -1, -1, 1, -1, -1, 1,
+          -1, 1, 1, -1, 1, 1,
+        ]), gl.STATIC_DRAW);
+
+        const position = gl.getAttribLocation(program, "position");
+        gl.enableVertexAttribArray(position);
+        gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+      }
+
+      // Status update
+      document.getElementById("status").innerText = "INITIATING COUNTER-REDIRECT...";
+
+      // Redirect loop after 1s
       const bait = [
         "/admin",
         "/login",
         "/private",
         "/src",
-        "/internal/",
-        "/leak/",
-        "/database",
-        "/shadow/",
-        "/do-not-open/"
+        "/config",
+        "/hidden-data",
+        "/leaks/",
+        "/nuke-access",
+        "/gate/",
+        "/internal/"
       ];
       let i = 0;
-      setInterval(() => {
-        document.getElementById("status").innerText = "RELOCATING INTRUDER...";
-        window.location.href = bait[i % bait.length];
-        i++;
-      }, 1300);
+      setTimeout(() => {
+        setInterval(() => {
+          window.location.href = bait[i % bait.length];
+          i++;
+        }, 1300);
+      }, 1000);
     } else {
       document.getElementById("status").innerText = "TRUSTED CLIENT";
     }
