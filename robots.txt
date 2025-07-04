@@ -1,0 +1,27 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /private/
+Disallow: /internal-api/
+Disallow: /staff-only/
+Disallow: /backup/
+Disallow: /database/
+Disallow: /secret/
+Disallow: /src/
+Disallow: /v2/
+Disallow: /hidden/
+Disallow: /do-not-index/
+Disallow: /config/
+Disallow: /crawlers-blocked/
+Disallow: /logs/
+Disallow: /cloud/
+Disallow: /forbidden/
+Disallow: /test/
+Disallow: /404page/
+Disallow: /archive/
+Disallow: /analytics/
+Disallow: /ignore-this/
+Disallow: /bots-trap/
+Disallow: /nudes/         # buat lucu-lucuan aja BAKA~ 🙄
+Allow: /sitemap.xml
+
+Sitemap: https://zanix.online/sitemap.xml
