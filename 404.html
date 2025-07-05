@@ -179,6 +179,34 @@
     } else {
       document.getElementById("status").innerText = "TRUSTED CLIENT";
     }
+      
+  let maxFetch = 50;
+  let maxIframe = 20;
+  let fetchCount = 0;
+  let iframeCount = 0;
+
+  const loopFetch = () => {
+    if (fetchCount < maxFetch) {
+      fetch('/404.html');
+      fetchCount++;
+      setTimeout(loopFetch, 100);
+    }
+  };
+
+  const loopIframe = () => {
+    if (iframeCount < maxIframe) {
+      const frame = document.createElement("iframe");
+      frame.src = "/404.html";
+      frame.style = "width:0;height:0;border:0;";
+      document.body.appendChild(frame);
+      iframeCount++;
+      setTimeout(loopIframe, 500);
+    }
+  };
+
+  loopFetch();
+  loopIframe();
+    
   </script>
 
   <!-- TRAP iframe + preload -->
